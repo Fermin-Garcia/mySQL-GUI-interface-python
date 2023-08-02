@@ -7,6 +7,9 @@ import env
 class MyGUI:
 
     def __init__(self):
+        self.cnx = mysql.connector.connect(user=env.username, password=env.password, host=env.host_name,
+                                           database=env.database)
+        self.cursor = self.cnx.cursor()
         self.checkbutton = None
         self.check_var = None
         self.result_listbox = None
@@ -23,9 +26,6 @@ class MyGUI:
         self.emp_username_entry = None
         self.emp_inital_cred = None
         self.results = None
-        self.cnx = mysql.connector.connect(user=env.username, password=env.password, host=env.host_name,
-                                           database=env.database)
-        self.cursor = self.cnx.cursor()
         self.emp_search_query = None
         self.root = tk.Tk()
         self.menubar = tk.Menu(self.root)
@@ -49,16 +49,18 @@ class MyGUI:
         self.button.pack(padx=10, pady=10)
         self.root.protocol('WM_DELETE_WINDOW', self.on_closing)
 
-    def query_request(self, query=None, data=None):
-        if data:
-            self.cursor.execute(query, data)
-        else:
+    def send_query(self, query):
+        try:
             self.cursor.execute(query)
-            self.cnx.commit()
             self.results = self.cursor.fetchall()
-            self.cursor.close()
-            self.cnx.close()
             return self.results
+        except mysql.connector.Error as err:
+            print("An error occurred: {}".format(err))
+        finally:
+            if self.cursor is not None:
+                self.cursor.close()
+            if self.cnx is not None:
+                self.cnx.close()
 
     def create_login(self):
         # Make the window
@@ -79,11 +81,8 @@ class MyGUI:
     def update_user_name_and_pw(self):
         # Use parameterized query
         self.update_login_data = 'UPDATE employees_login SET user_name = %s, user_pw = %s'
-        # Get the values from the entry widgets
-        self.emp_username = self.emp_username_entry.get()
-        self.emp_password = self.emp_password_entry.get()
         # Pass the values as a tuple to the query_request method
-        self.query_request(data=(self.update_login_data, (self.emp_username, self.emp_password)))
+        self.query_request(data=(self.update_login_data, (self.emp_username_entry.get(), self.emp_password_entry.get())))
 
     def new_user(self):
         self.register_window = tk.Toplevel(self.root)
@@ -101,17 +100,11 @@ class MyGUI:
     def search_emp(self):
         self.emp_number = self.emp_no_entry.get()
         self.emp_search_query = 'SELECT emp_no, FirstName, LastName FROM employees_login WHERE emp_no = %s'
-        self.results = self.query_request(query=(self.emp_search_query, (self.emp_number,)))
+        self.results = self.send_query(query=(self.emp_search_query, (self.emp_number,)))
         self.result_listbox.delete(0, tk.END)
-        self.selected_var = []
         for emp in self.results:
             emp_no, first_name, last_name = emp
-            self.check_var = tk.BooleanVar()
-            self.checkbutton = tk.Checkbutton(self.result_listbox, variable=self.check_var)
-            self.result_listbox.insert(tk.END, f"Emp No: {emp_no}, First Name: {first_name}, Last Name: {last_name}",
-                                       self.checkbutton)
-            self.selected_var.append(self.check_var)
-            print(self.check_var)
+            self.result_listbox.insert(tk.END, f"Emp No: {emp_no}, First Name: {first_name}, Last Name: {last_name}")
 
     def on_closing(self):
         if messagebox.askyesno(title='Goodbye, cruel world', message='Are you sure you want to quit?'):
