@@ -1,3 +1,10 @@
+'''
+
+Here is another set of notes from the lesson i watched on tkinter here for my reference
+
+'''
+
+
 import tkinter as tk
 from tkinter import messagebox
 

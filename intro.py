@@ -1,3 +1,13 @@
+'''
+
+This is the notes from the lesson on tkinter. They are here for me to reference
+
+
+'''
+
+
+
+
 import tkinter
 import tkinter as tk
 

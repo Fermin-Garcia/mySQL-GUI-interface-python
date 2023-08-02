@@ -1,3 +1,13 @@
+'''
+
+This is a scratch pad to make the the connection to mysql database
+
+'''
+
+
+
+
+
 import mysql.connector
 from env import username, password, host_name, database
 def get_conx():
