@@ -7,14 +7,17 @@ import env
 class MyGUI:
 
     def __init__(self):
+        # MySql.connect:
+        self.emp_search = None
         self.cnx = mysql.connector.connect(user=env.username, password=env.password, host=env.host_name,
                                            database=env.database)
         self.cursor = self.cnx.cursor()
+        self.emp_no_results = None
         self.checkbutton = None
         self.check_var = None
         self.result_listbox = None
         self.selected_var = None
-        self.emp_number = None
+        self.get_emp_number = None
         self.search_button = None
         self.register_window = None
         self.emp_no_entry = None
@@ -48,41 +51,9 @@ class MyGUI:
         self.button = tk.Button(self.root, text='New User', font=('Arial', 18), command=self.new_user)
         self.button.pack(padx=10, pady=10)
         self.root.protocol('WM_DELETE_WINDOW', self.on_closing)
-
-    def send_query(self, query):
-        try:
-            self.cursor.execute(query)
-            self.results = self.cursor.fetchall()
-            return self.results
-        except mysql.connector.Error as err:
-            print("An error occurred: {}".format(err))
-        finally:
-            if self.cursor is not None:
-                self.cursor.close()
-            if self.cnx is not None:
-                self.cnx.close()
-
-    def create_login(self):
-        # Make the window
-        self.emp_inital_cred = tk.Tk()
-        # Make the title
-        self.emp_inital_cred.title('Create User Account')
-        # Create entry block
-        self.emp_username_entry = tk.Entry(self.emp_inital_cred)
-        # post it on the page
-        self.emp_username_entry.pack(padx=10, pady=10)
-        # Make the password text block. Additionally, we are making the password show * when it is typed
-        self.emp_password_entry = tk.Entry(self.emp_inital_cred, show='*')
-        # Post it on the page
-        self.emp_password_entry.pack(padx=10, pady=10)
-        # Make a button that runs query_database
-        self.submit_button = tk.Button(self.emp_inital_cred, text='Submit', command=self.update_user_name_and_pw)
-
-    def update_user_name_and_pw(self):
-        # Use parameterized query
-        self.update_login_data = 'UPDATE employees_login SET user_name = %s, user_pw = %s'
-        # Pass the values as a tuple to the query_request method
-        self.query_request(data=(self.update_login_data, (self.emp_username_entry.get(), self.emp_password_entry.get())))
+    '''
+    end of __init__(). Methods below:
+    '''
 
     def new_user(self):
         self.register_window = tk.Toplevel(self.root)
@@ -96,20 +67,40 @@ class MyGUI:
         self.search_button.pack()
         self.result_listbox = tk.Listbox(self.register_window, selectmode='SINGLE', height=20, width=50)
         self.result_listbox.pack(padx=10, pady=10)
+        self.submit_button = tk.Button(self.register_window,)
 
     def search_emp(self):
-        self.emp_number = self.emp_no_entry.get()
-        self.emp_search_query = 'SELECT emp_no, FirstName, LastName FROM employees_login WHERE emp_no = %s'
-        self.results = self.send_query(query=(self.emp_search_query, (self.emp_number,)))
+        self.emp_search = 'SELECT emp_no, FirstName, LastName FROM employees_login WHERE emp_no = %s'
+        self.get_emp_number =self.emp_no_entry.get()
+        self.cursor.execute(self.emp_search, (self.get_emp_number,))
+        self.results = self.cursor.fetchall()
+        print(self.results)
         self.result_listbox.delete(0, tk.END)
         for emp in self.results:
             emp_no, first_name, last_name = emp
-            self.result_listbox.insert(tk.END, f"Emp No: {emp_no}, First Name: {first_name}, Last Name: {last_name}")
+            self.result_listbox.insert(tk.END,
+                                       f"Emp No: {emp_no}| First Name: {first_name}| Last Name: {last_name}")
+
+    def update_login_information(self, query):
+        self.cursor.execute()
+        self.cnx.commit()
+        print('Updated Sucessfully')
+
+
+
+    def update_user_name_and_pw(self):
+        # Use parameterized query
+        self.query = 'UPDATE employees_login SET user_name = %s, user_pw = %s'
+        # Pass the values as a tuple to the query_request method
+        self.crusor.execute(self.update_login_data, (self.emp_username_entry.get(), self.emp_password_entry.get()))
 
     def on_closing(self):
         if messagebox.askyesno(title='Goodbye, cruel world', message='Are you sure you want to quit?'):
             self.root.destroy()
-
-
+            self.cursor.close()
+            self.cnx.close()
+            
 if __name__ == "__main__":
     MyGUI().root.mainloop()
+
+
