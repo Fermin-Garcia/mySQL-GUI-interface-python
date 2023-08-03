@@ -11,6 +11,8 @@ class MyGUI:
 
     def __init__(self):
         # MySql.connect:
+        self.patient_result = None
+        self.patient_results = None
         self.patient_search_query = None
         self.patient_lastname_name_entry = None
         self.patient_first_name_entry = None
@@ -179,6 +181,7 @@ class MyGUI:
 
     def patient_profile_page_search(self):
         self.patient_profile_page = tk.Toplevel(self.dashboard_window_access2)
+        self.patient_profile_page.geometry('500x500')
         self.patient_profile_search = tk.Frame(self.patient_profile_page)
         self.patient_id_label = tk.Label(self.patient_profile_search, text='Enter patient\'s ID')
         self.patient_id_entry = tk.Entry(self.patient_profile_search)
@@ -194,13 +197,20 @@ class MyGUI:
         self.patient_lastname_name_entry.pack()
         self.patient_search_button = tk.Button(self.patient_profile_search, text='Search for patient',
                                                command=self.search_patient)
-        self.patient_profile_search.pack()
+        self.patient_search_button.pack(padx=10, pady=10)
+        self.patient_result = tk.Listbox(self.patient_profile_search)
+
+        self.patient_result.pack(padx=10, pady=10)
+        self.patient_profile_search.pack(padx=10, pady=10)
 
     def search_patient(self):
         self.patient_search_query = 'select * from patient_information where patient_id like %s or patent_FirstName like %s or patient_LastName like %s'
         self.cursor.execute(self.patient_search_query, (
         self.patient_id_entry.get(), self.patient_first_name_entry.get(), self.patient_lastname_name_entry.get()))
-        print(self.cursor.fetchall())
+        self.show_patient_results = self.cursor.fetchall()
+        for patients in self.show_patient_results:
+            se
+
         # self.dashboard_window = tk.Toplevel(self.root)
 
         # Below are the methods used to close the program
