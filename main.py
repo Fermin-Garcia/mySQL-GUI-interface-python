@@ -212,14 +212,10 @@ class MyGUI:
         self.patient_information = self.cursor.fetchall()
 
         # finish writing for loop
-        for x,y,z,a,b,c,d,e in self.patient_information:
-            self.patient_id = tk.Entry(self.patient_profile_page_frame, textvariable=x)
-            self.patient_id.pack(padx=10,pady=10)
-            self.patient_first_name = tk.Entry(self.patient_profile_page_frame, textvariable=y)
-            self.patient_first_name.pack(padx=10,pady=10)
-            self.patient_lastname = tk.Entry(self.patient_profile, textvariable=z)
-            self.patient_lastname.pack(padx=10,pady=10)
-            self.patient_dob = tk.Entry(self.patient_profile, textvariable=z)
+        for items in self.patient_information[0]:
+            print(len(self.patient_information[0]))
+            print(f'here is one item {(items)}')
+            self
 
 
 
