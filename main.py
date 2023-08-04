@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import messagebox
 #
 import mysql.connector
+import datetime
 import numpy as np
 import env
 
@@ -12,7 +13,6 @@ class MyGUI:
     def __init__(self):
         # MySql.connect:
         self.patient_result = None
-        self.patient_results = None
         self.patient_search_query = None
         self.patient_lastname_name_entry = None
         self.patient_first_name_entry = None
@@ -64,6 +64,7 @@ class MyGUI:
         self.results = None
         self.emp_search_query = None
         self.root = tk.Tk()
+        self.root.title('Log In')
         self.root.geometry('800x800')
         self.menubar = tk.Menu(self.root)
         self.filemenu = tk.Menu(self.menubar, tearoff=0)
@@ -198,29 +199,77 @@ class MyGUI:
         self.patient_search_button = tk.Button(self.patient_profile_search, text='Search for patient',
                                                command=self.search_patient)
         self.patient_search_button.pack(padx=10, pady=10)
-        self.patient_result = tk.Listbox(self.patient_profile_search)
-
+        self.patient_result = tk.Listbox(self.patient_profile_search, selectmode='single', height = 10, width = 50)
+        self.select_patient = tk.Button(self.patient_profile_search, text= 'Select Patient', command = self.open_patient_profile)
+        self.select_patient.pack(padx=10, pady=10)
         self.patient_result.pack(padx=10, pady=10)
         self.patient_profile_search.pack(padx=10, pady=10)
 
+    def open_patient_profile(self):
+        self.patient_profile_page_frame = tk.Frame(self.patient_profile_page)
+        self.load_patient_information_query ='select * from patient_information where patient_id = %s;'
+        self.cursor.execute(self.load_patient_information_query, (self.selected_patient_id,))
+        self.patient_information = self.cursor.fetchall()
+
+        # finish writing for loop
+        for x,y,z,a,b,c,d,e in self.patient_information:
+            self.patient_id = tk.Entry(self.patient_profile_page_frame, textvariable=x)
+            self.patient_id.pack(padx=10,pady=10)
+            self.patient_first_name = tk.Entry(self.patient_profile_page_frame, textvariable=y)
+            self.patient_first_name.pack(padx=10,pady=10)
+            self.patient_lastname = tk.Entry(self.patient_profile, textvariable=z)
+            self.patient_lastname.pack(padx=10,pady=10)
+            self.patient_dob = tk.Entry(self.patient_profile, textvariable=z)
+
+
+
+        '''
+        We stopped here, We are trying to load patient information on a screen, in each entry box we haven't ran the
+        loop but we still need to go in and disable the buttons so they are not editable.
+        
+        '''
+
+
+
+        print(self.patient_information)
+        self.patient_profile_search.destroy()
+
+
+
+
+
+
+
+
+
+
     def search_patient(self):
-        self.patient_search_query = 'select * from patient_information where patient_id like %s or patent_FirstName like %s or patient_LastName like %s'
+        self.patient_search_query = 'select patient_id, patent_FirstName, patient_LastName from patient_information where patient_id like %s or patent_FirstName like %s or patient_LastName like %s'
         self.cursor.execute(self.patient_search_query, (
         self.patient_id_entry.get(), self.patient_first_name_entry.get(), self.patient_lastname_name_entry.get()))
+        self.selected_patient_id = None
+        # get results
         self.show_patient_results = self.cursor.fetchall()
-        for patients in self.show_patient_results:
-            se
+        if self.patient_result != []:
+            for pt_id, first,last in self.show_patient_results:
+                self.selected_patient_id = pt_id
+                self.patient_result.delete(0,tk.END)
+                self.patient_result.insert(tk.END, f'Patient ID : {pt_id} | First Name: {first} | Last Name:{last} ')
+        else:
+            self.messagebox.showerror(title='No Patient Found', message='No Patient Found Please Try Again! ')
+
+
 
         # self.dashboard_window = tk.Toplevel(self.root)
 
         # Below are the methods used to close the program
-
     def on_closing(self):
-        # if messagebox.askyesno(title='Goodbye, cruel world', message='Are you sure you want to quit?'):
         self.root.destroy()
         self.cursor.close()
         self.cnx.close()
 
 
+
 if __name__ == "__main__":
     MyGUI().root.mainloop()
+    # if messagebox.askyesno(title='Goodbye, cruel world', message='Are you sure you want to quit?'):
