@@ -1,10 +1,10 @@
 # Import Tkinter for gui creation:
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 #
 import mysql.connector
-import datetime
-import numpy as np
+from datetime import datetime
 import env
 
 
@@ -65,14 +65,14 @@ class MyGUI:
         self.emp_search_query = None
         self.root = tk.Tk()
         self.root.title('Log In')
-        self.root.geometry('800x800')
-        self.menubar = tk.Menu(self.root)
-        self.filemenu = tk.Menu(self.menubar, tearoff=0)
-        self.filemenu.add_command(label='force close', command=exit)
-        self.filemenu.add_separator()
-        self.filemenu.add_command(label='close', command=self.on_closing)
-        self.menubar.add_cascade(menu=self.filemenu, label='File')
-        self.root.config(menu=self.menubar)
+        self.root.geometry('300x500')
+        # self.menubar = tk.Menu(self.root)
+        # self.filemenu = tk.Menu(self.menubar, tearoff=0)
+        # self.filemenu.add_command(label='force close', command=exit)
+        # self.filemenu.add_separator()
+        # self.filemenu.add_command(label='close', command=self.on_closing)
+        # self.menubar.add_cascade(menu=self.filemenu, label='File')
+        # self.root.config(menu=self.menubar)
         self.label = tk.Label(self.root, text='Login', font=('Arial', 18))
         self.label.pack(padx=10, pady=10)
         self.username_label = tk.Label(self.root, text='Username:', font=('Arial', 18))
@@ -170,6 +170,7 @@ class MyGUI:
 
     def user_dashboards_leve_two(self):
         self.dashboard_window_access2 = tk.Toplevel(self.root)
+        self.dashboard_window_access2.title('Employee Dashboard')
         self.dashboard_window_access2.geometry('800x800')
 
         self.greeting_user = tk.Label(self.dashboard_window_access2,
@@ -182,6 +183,7 @@ class MyGUI:
 
     def patient_profile_page_search(self):
         self.patient_profile_page = tk.Toplevel(self.dashboard_window_access2)
+        self.patient_profile_page.title('Patient Profile')
         self.patient_profile_page.geometry('500x500')
         self.patient_profile_search = tk.Frame(self.patient_profile_page)
         self.patient_id_label = tk.Label(self.patient_profile_search, text='Enter patient\'s ID')
@@ -201,36 +203,94 @@ class MyGUI:
         self.patient_search_button.pack(padx=10, pady=10)
         self.patient_result = tk.Listbox(self.patient_profile_search, selectmode='single', height = 10, width = 50)
         self.select_patient = tk.Button(self.patient_profile_search, text= 'Select Patient', command = self.open_patient_profile)
-        self.select_patient.pack(padx=10, pady=10)
         self.patient_result.pack(padx=10, pady=10)
         self.patient_profile_search.pack(padx=10, pady=10)
+        self.select_patient.pack(side='bottom')
 
     def open_patient_profile(self):
-        self.patient_profile_page_frame = tk.Frame(self.patient_profile_page)
+        self.open_record = tk.Toplevel(self.dashboard_window_access2)
+        self.open_record.title('')
+        self.open_record.geometry('700x500')
         self.load_patient_information_query ='select * from patient_information where patient_id = %s;'
         self.cursor.execute(self.load_patient_information_query, (self.selected_patient_id,))
         self.patient_information = self.cursor.fetchall()
+        self.patient_information_dict = {
+            'Patient Id' : None,
+            'Patient First Name' : None,
+            'Patient Last Name' : None,
+            'Patient Date of Birth': None,
+            'Emergency Contact First Name' : None,
+            'Emergency Contact Last Name' : None,
+            'Emergency Contact Phone Number' : None,
+            'Patient Decease Status' : None,
+            'Active Resident': None
+        }
 
-        # finish writing for loop
-        for items in self.patient_information[0]:
-            print(len(self.patient_information[0]))
-            print(f'here is one item {(items)}')
-            self
+        self.patient_profile_page.destroy()
+
+        frame_title = tk.Frame(self.open_record)
+        frame_title.pack(side='top', fill='x', expand=True)
+        label_one = tk.Label(frame_title, text=' Patient Information:')
+        label_one.config(font=("Arial", 12, "bold"))
+        label_one.pack(side='top')
+
+
+        for index, key in enumerate(self.patient_information_dict.keys()):
+            self.patient_information_dict[key] = self.patient_information[0][index]
+
+            frame = tk.Frame(self.open_record)
+            frame.pack(side='top', fill='x', expand=True)
+            label = tk.Label(frame, text=f'{key} :')
+            label.pack(side='left', anchor='w')
+            text_var = tk.StringVar()
+            text_var.set( self.patient_information[0][index])
+            patient_info_entry = tk.Entry(frame, textvariable=text_var, state='readonly')
+            patient_info_entry.pack(side='left',anchor='n')
 
 
 
-        '''
-        We stopped here, We are trying to load patient information on a screen, in each entry box we haven't ran the
-        loop but we still need to go in and disable the buttons so they are not editable.
-        
-        '''
+        bottom_frame = tk.Frame(self.open_record)
+        bottom_frame.pack(side='bottom')
 
+        add_notes = tk.Button(bottom_frame, text= 'Add encounter Notes', command= self.add_encounter_notes)
+        add_notes.pack(side='left', fill='x', expand=False, anchor ='n')
+        close_profile = tk.Button(bottom_frame, text='Close Patient Profile')
+        close_profile.pack(side='left', fill='x', anchor='n')
 
-
-        print(self.patient_information)
         self.patient_profile_search.destroy()
-
-
+    def add_encounter_notes(self):
+        now = datetime.now()
+        timestamp = now.strftime('%y-%m-%d %H:%M:%')
+        self.open_record.destroy()
+        self.new_encounter_note = tk.Toplevel(self.dashboard_window_access2)
+        self.new_encounter_note.geometry('800x800')
+        self.new_encounter_note.title('New Encounter Note')
+        self.new_encounter_note_pt_info_frame = tk.LabelFrame(self.new_encounter_note)
+        self.new_encounter_note_pt_info_frame.pack(anchor='nw', fill ='x')
+        for keys,values in self.patient_information_dict.items():
+            labels = tk.Label(self.new_encounter_note_pt_info_frame, text=f'{keys}: {values}')
+            labels.pack(anchor='nw')
+            #New Encounter Frame
+        self.add_new_encounter_title_frame = tk.Frame(self.new_encounter_note)
+        self.add_new_encounter_title_frame.pack()
+        encounter_label = tk.Label(self.add_new_encounter_title_frame, text= 'Add New Encounter', font=('Arial', 24, 'bold'))
+        encounter_label.pack(anchor='nw')
+        # new encounter details
+        self.add_new_encounter_detail_frame = tk.Frame(self.new_encounter_note)
+        self.add_new_encounter_detail_frame.pack(anchor='nw')
+        encounter_types_list = ['Wake up', 'Eat', 'sleep','Restroom', 'Medical Personnel Visitor', 'Personal Visitor']
+        encounter_type_label = tk.Label(self.add_new_encounter_detail_frame,
+                                        text='Please Select Type of Patient Encounter: ')
+        encounter_type_label.pack()
+        encounter_type_check_box = ttk.Combobox(self.add_new_encounter_detail_frame, values= encounter_types_list )
+        encounter_type_check_box.pack()
+        encounter_note_label = tk.Label(self.add_new_encounter_detail_frame, text = 'Please type more encounter details: ')
+        encounter_note_label.pack()
+        encounter_details_text = tk.Text(self.add_new_encounter_detail_frame, height=20, width= 70)
+        encounter_details_text.pack(fill='x',expand=True)
+        test_query = 'insert into patient_encounter(entry_info, patient_id,encounter_type,encounter_note,emp_no ) values(%s, %s, %s, %s, %s,)'# Write query to execute new encounter note
+        # print(test_query,(timestamp,self.patient_information_dict['Patient Id'].values(),encounter_type_check_box.get(0),encounter_details_text.get(),self.login_check[0][0]))
+        print(self.patient_information_dict['Patient Id'])
 
 
 

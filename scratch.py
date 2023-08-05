@@ -7,20 +7,15 @@ import mysql.connector
 import env
 
 
-import tkinter as tk
-
-root = tk.Tk()
-
-frame = tk.Frame(root)
-
-entry_1 = tk.Entry(frame)
-entry_2 = tk.Entry(frame)
-entry_3 = tk.Entry(frame)
-
-entry_1.pack()
-entry_2.pack()
-entry_3.pack()
-
-frame.pack()
-
-root.mainloop()
+patient_information_labels = {
+        'Patient Id' : None,
+        'Patient First Name' : None,
+        'Patient Last Name' : None,
+        'Patient Date of Birth': None,
+        'Emergency Contact First Name' : None,
+        'Emergency Contact Last Name' : None,
+        'Emergency Contact Phone Number' : None,
+        'Patient Decease Status' : None,
+        'Active Resident': None
+    }
+patient_information_labels
