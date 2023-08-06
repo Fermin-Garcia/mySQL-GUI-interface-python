@@ -1,4 +1,5 @@
 # Import Tkinter for gui creation:
+import tkinter
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
@@ -166,7 +167,7 @@ class MyGUI:
             self.messagebox.showinfo(title='No user found', message='Your username/password is incorrect')
         else:
             self.messagebox.showwarning(title='error occured',
-                                        message='an Unknow error has occured, please try your request again. If problems persist,contact system administrator')
+                                        message='an Unkown error has occured, please try your request again. If problems persist,contact system administrator')
 
     def user_dashboards_leve_two(self):
         self.dashboard_window_access2 = tk.Toplevel(self.root)
@@ -259,8 +260,8 @@ class MyGUI:
 
         self.patient_profile_search.destroy()
     def add_encounter_notes(self):
-        now = datetime.now()
-        timestamp = now.strftime('%y-%m-%d %H:%M:%')
+        self.now = datetime.now()
+        self.timestamp = self.now.strftime('%y-%m-%d %H:%M:%S')
         self.open_record.destroy()
         self.new_encounter_note = tk.Toplevel(self.dashboard_window_access2)
         self.new_encounter_note.geometry('800x800')
@@ -278,19 +279,30 @@ class MyGUI:
         # new encounter details
         self.add_new_encounter_detail_frame = tk.Frame(self.new_encounter_note)
         self.add_new_encounter_detail_frame.pack(anchor='nw')
-        encounter_types_list = ['Wake up', 'Eat', 'sleep','Restroom', 'Medical Personnel Visitor', 'Personal Visitor']
+        encounter_types_list = ['Wake up', 'Eat', 'Sleep','Restroom', 'Medical Personnel Visitor', 'Personal Visitor']
         encounter_type_label = tk.Label(self.add_new_encounter_detail_frame,
                                         text='Please Select Type of Patient Encounter: ')
         encounter_type_label.pack()
-        encounter_type_check_box = ttk.Combobox(self.add_new_encounter_detail_frame, values= encounter_types_list )
-        encounter_type_check_box.pack()
-        encounter_note_label = tk.Label(self.add_new_encounter_detail_frame, text = 'Please type more encounter details: ')
-        encounter_note_label.pack()
-        encounter_details_text = tk.Text(self.add_new_encounter_detail_frame, height=20, width= 70)
-        encounter_details_text.pack(fill='x',expand=True)
+        self.check_box_selection = tk.StringVar()
+        self.encounter_type_check_box = ttk.Combobox(self.add_new_encounter_detail_frame, values= encounter_types_list, textvariable=self.check_box_selection )
+        self.encounter_type_check_box.pack()
+        self.encounter_note_label = tk.Label(self.add_new_encounter_detail_frame, text = 'Please type more encounter details: ')
+        self.encounter_note_label.pack()
+        self.encounter_details_text = tk.Text(self.add_new_encounter_detail_frame, height=20, width= 70)
+        self.encounter_details_text.pack(fill='x',expand=True)
+        self.add_encounter_button = tk.Button(self.add_new_encounter_detail_frame, text='Submit Encounter Note', command=self.add_encounter)
+        self.add_encounter_button.pack(fill='x',expand=True)
+
+    def add_encounter(self):
         test_query = 'insert into patient_encounter(entry_info, patient_id,encounter_type,encounter_note,emp_no ) values(%s, %s, %s, %s, %s,)'# Write query to execute new encounter note
-        # print(test_query,(timestamp,self.patient_information_dict['Patient Id'].values(),encounter_type_check_box.get(0),encounter_details_text.get(),self.login_check[0][0]))
-        print(self.patient_information_dict['Patient Id'])
+        # print(test_query,(self.timestamp,self.patient_information_dict['Patient Id'],self.encounter_type_check_box.get(tkinter.ANCHOR),self.encounter_details_text.get(),self.login_check[0][0]))
+        (print(
+              self.timestamp,
+              self.patient_information_dict['Patient Id']),
+              self.check_box_selection.())
+        #       self.encounter_details_text.get(),
+        #       self.login_check[0][0])
+        # # print
 
 
 
