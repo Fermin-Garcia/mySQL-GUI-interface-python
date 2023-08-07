@@ -294,22 +294,10 @@ class MyGUI:
         self.add_encounter_button.pack(fill='x',expand=True)
 
     def add_encounter(self):
-        test_query = 'insert into patient_encounter(entry_info, patient_id,encounter_type,encounter_note,emp_no ) values(%s, %s, %s, %s, %s,)'# Write query to execute new encounter note
-        # print(test_query,(self.timestamp,self.patient_information_dict['Patient Id'],self.encounter_type_check_box.get(tkinter.ANCHOR),self.encounter_details_text.get(),self.login_check[0][0]))
-        (print(
-              self.timestamp,
-              self.patient_information_dict['Patient Id']),
-              self.check_box_selection.())
-        #       self.encounter_details_text.get(),
-        #       self.login_check[0][0])
-        # # print
-
-
-
-
-
-
-
+        test_query = 'insert into patient_encounter(entry_info, patient_id, encounter_type, encounter_note, emp_no) values(%s, %s, %s, %s, %s)'  # Write query to execute new encounter note
+        print(test_query, ((self.timestamp, self.patient_information_dict['Patient Id'], self.check_box_selection.get(),
+                            self.encounter_details_text.get('1.0', tk.END), self.login_check[0][0])))
+        # Rest of the code...
 
     def search_patient(self):
         self.patient_search_query = 'select patient_id, patent_FirstName, patient_LastName from patient_information where patient_id like %s or patent_FirstName like %s or patient_LastName like %s'
