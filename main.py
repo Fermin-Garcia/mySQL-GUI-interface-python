@@ -1,4 +1,6 @@
 # Import Tkinter for gui creation:
+import time
+import datetime
 import tkinter
 import tkinter as tk
 from tkinter import messagebox
@@ -183,6 +185,36 @@ class MyGUI:
         self.patient_profile_button = tk.Button(self.dashboard_window_access2, text='Access Patient Profile',
                                                 command=self.patient_profile_page_search)
         self.patient_profile_button.pack(padx=10, pady=10)
+        self.employee_portal_button = tk.Button(self.dashboard_window_access2, text='Employee Portal',
+                                                command=self.employee_portal)
+        self.employee_portal_button.pack(padx=10, pady=10)
+        self.log_out_button = tk.Button(self.dashboard_window_access2,text= 'Logout', command= self.on_closing)
+        self.log_out_button.pack()
+    def employee_portal(self):
+        self.employee_portal_page = tk.Toplevel(self.dashboard_window_access2)
+        self.employee_portal_frame = tk.Frame(self.employee_portal_page)
+        self.clock_in_button = tk.Button(self.employee_portal_frame, text='Clock in', command=self.clock_in)
+        self.clock_out_button = tk.Button(self.employee_portal_frame, text='Clock Out')
+        self.employee_portal_frame.pack()
+        self.clock_in_button.pack()
+        self.clock_out_button.pack()
+
+
+    def clock_in(self):
+        now = datetime.now()
+        self.messagebox.showinfo(self.employee_portal,'you are now clocked in')
+        clockin_cursor = self.cursor
+        current_time_str = time.strftime('%H:%M')
+        employee_number = self.login_check[0][0]
+        work_date = f'{now.month}/{now.day}/{now.year}'
+        clock_in = time.time()
+
+
+        clockin_query = f'insert into employee_timesheet_log(employee_number, work_date, clock_in_time) values({employee_number},{str(work_date)},{str(current_time_str)})'
+        print(clockin_query)
+        clockin_cursor.execute(clockin_query)
+        self.cnx.commit()
+
 
     def patient_profile_page_search(self):
         self.patient_profile_page = tk.Toplevel(self.dashboard_window_access2)
@@ -353,7 +385,7 @@ class MyGUI:
         # print((self.encounter_query,(patient_id)))
         self.cursor.execute(self.encounter_query)
         results = self.cursor.fetchall()
-        self.encoounter_list_box.insert(0, 'Date | Patient ID | Encounter Type | Encounter Detail | Employee Number')
+        self.encoounter_list_box.insert(0, 'Date                                  | Patient ID | Encounter Type | Encounter Detail | Employee Number')
         for i, n in enumerate(results):
             self.encoounter_list_box.insert(tk.END, n)
 
